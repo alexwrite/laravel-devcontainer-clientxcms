@@ -3,6 +3,10 @@ services:
     build: cli
     volumes:
       - ..:/workspaces/laravel
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.laravel-scheduler.schedule: "@every 1m"
+      ofelia.job-exec.laravel-scheduler.command: "php /workspaces/laravel/artisan schedule:run"
 
   fpm:
     build: fpm
@@ -26,5 +30,22 @@ services:
       POSTGRES_USER: root
       POSTGRES_HOST_AUTH_METHOD: trust
 
+  mariadb:
+      image: mariadb:11.2
+      environment:
+        MARIADB_DATABASE: clientxcms
+        MARIADB_USER: clientxcms
+        MARIADB_PASSWORD: clientxcms
+        MARIADB_ROOT_PASSWORD: clientxcms
+
   redis:
     image: redis:7.2-alpine
+
+  # Ajout du service Ofelia pour la gestion des tâches
+  scheduler:
+    image: mcuadros/ofelia:latest
+    command: daemon --docker
+    depends_on:
+      - cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
