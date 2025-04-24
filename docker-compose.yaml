@@ -49,3 +49,13 @@ services:
       - cli
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # Service pour les queues Laravel
+  queue:
+    build: queue
+    volumes:
+      - ..:/workspaces/laravel
+    depends_on:
+      - redis
+      - mariadb
+    restart: unless-stopped
