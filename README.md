@@ -156,6 +156,65 @@ php artisan migrate:fresh --seed
 - **EditorConfig** : Configuration d'éditeur
 - **DotENV** : Coloration syntaxique .env
 
+## 🤖 Claude CLI
+
+Claude CLI est préinstallé dans le devcontainer pour faciliter le développement avec l'IA d'Anthropic.
+
+### Configuration automatique
+
+Ton fichier d'authentification (`~/.claude/`) est automatiquement monté dans le container en lecture seule. Tu es donc **déjà authentifié** dès le lancement du devcontainer !
+
+### Utilisation
+
+```bash
+# Lancer Claude CLI
+claude
+
+# Ou utiliser la commande complète
+claude-code
+
+# Obtenir de l'aide
+claude --help
+```
+
+### Première utilisation (si pas encore authentifié sur ta machine)
+
+Si tu n'as pas encore configuré Claude CLI sur ta machine hôte, lance-le d'abord en dehors du container :
+
+```bash
+# Sur ta machine hôte (pas dans le container)
+claude-code login
+```
+
+Une fois authentifié, rebuild le devcontainer pour monter les credentials
+
+### Exemples d'utilisation
+
+```bash
+# Demander à Claude d'analyser du code
+claude "Explique-moi cette fonction"
+
+# Générer du code
+claude "Crée un contrôleur Laravel pour gérer les produits"
+
+# Déboguer
+claude "J'ai cette erreur dans mon code : [copier l'erreur]"
+
+# Optimiser
+claude "Comment puis-je optimiser cette requête SQL ?"
+```
+
+### Alias disponibles
+
+Plusieurs alias sont configurés pour simplifier l'utilisation :
+
+```bash
+cc   # claude --dangerously-skip-permissions --resume
+ccc  # claude --dangerously-skip-permissions
+```
+
+**Note sur `--dangerously-skip-permissions`** : Cet alias permet à Claude de travailler sans demander confirmation à chaque opération. C'est pratique dans un environnement de développement conteneurisé où tu as le contrôle total.
+
 ## ⚙️ Configuration
 
 ### Variables d'environnement

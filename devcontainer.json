@@ -1,7 +1,8 @@
 {
-    "name": "ClientXCMS - Laravel Development",
+    "name": "ClientXCMS - Development",
     "service": "cli",
     "remoteUser": "user",
+    "updateRemoteUserUID": true,
     "shutdownAction": "stopCompose",
     "workspaceFolder": "/workspaces/laravel",
     "dockerComposeFile": "docker-compose.yaml",
@@ -55,8 +56,11 @@
                 "phpunit.php": "/usr/local/bin/php",
                 "phpunit.phpunit": "./vendor/bin/phpunit",
                 "phpunit.args": [],
-                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.defaultProfile.linux": "zsh",
                 "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/bin/zsh"
+                    },
                     "bash": {
                         "path": "/bin/bash"
                     }
@@ -64,7 +68,12 @@
             }
         }
     },
-    "forwardPorts": [80, 3306, 8080, 8025],
+    "forwardPorts": [
+        80,
+        3306,
+        8080,
+        8025
+    ],
     "portsAttributes": {
         "80": {
             "label": "Application",

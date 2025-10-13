@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 ClientXCMS DevContainer - Script d'initialisation"
+echo "ClientXCMS DevContainer - Script d'initialisation"
 echo "=================================================="
 
 # Vérifier que nous sommes dans le bon répertoire
@@ -9,7 +9,7 @@ cd /workspaces/laravel
 
 # Copier le fichier .env s'il n'existe pas
 if [ ! -f .env ]; then
-    echo "📝 Création du fichier .env..."
+    echo "Création du fichier .env..."
     cp .env.example .env
 
     # Configurer les variables spécifiques au devcontainer
@@ -43,43 +43,43 @@ if [ ! -f .env ]; then
     sed -i 's/MAIL_PASSWORD=.*/MAIL_PASSWORD=null/' .env
     sed -i 's/MAIL_ENCRYPTION=.*/MAIL_ENCRYPTION=null/' .env
 
-    echo "✅ Fichier .env configuré pour le devcontainer"
+    echo "Fichier .env configuré pour le devcontainer"
 else
-    echo "ℹ️  Fichier .env existant - conservé"
+    echo "Fichier .env existant - conservé"
 fi
 
 # Installation des dépendances PHP
 if [ ! -d "vendor" ]; then
-    echo "📦 Installation des dépendances Composer..."
+    echo "Installation des dépendances Composer..."
     composer install --no-interaction --prefer-dist --optimize-autoloader
-    echo "✅ Dépendances PHP installées"
+    echo "Dépendances PHP installées"
 else
-    echo "ℹ️  Dépendances Composer déjà installées"
+    echo "Dépendances Composer déjà installées"
 fi
 
 # Installation des dépendances Node
 if [ ! -d "node_modules" ]; then
-    echo "📦 Installation des dépendances NPM..."
+    echo "Installation des dépendances NPM..."
     npm install
-    echo "✅ Dépendances Node installées"
+    echo "Dépendances Node installées"
 else
-    echo "ℹ️  Dépendances NPM déjà installées"
+    echo "Dépendances NPM déjà installées"
 fi
 
 # Build des assets
-echo "🏗️  Build des assets frontend..."
+echo "Build des assets frontend..."
 npm run build
-echo "✅ Assets compilés"
+echo "Assets compilés"
 
 # Générer la clé d'application si nécessaire
 if ! grep -q "^APP_KEY=base64:" .env; then
-    echo "🔑 Génération de la clé d'application..."
+    echo "Génération de la clé d'application..."
     php artisan key:generate
-    echo "✅ Clé d'application générée"
+    echo "Clé d'application générée"
 fi
 
 # Attendre que la base de données soit prête
-echo "⏳ Attente de la base de données..."
+echo "Attente de la base de données..."
 max_attempts=30
 attempt=0
 until php artisan db:show > /dev/null 2>&1 || [ $attempt -eq $max_attempts ]; do
@@ -89,73 +89,68 @@ until php artisan db:show > /dev/null 2>&1 || [ $attempt -eq $max_attempts ]; do
 done
 
 if [ $attempt -eq $max_attempts ]; then
-    echo "❌ Impossible de se connecter à la base de données"
+    echo "Impossible de se connecter à la base de données"
     exit 1
 fi
-echo "✅ Connexion à la base de données établie"
+echo "Connexion à la base de données établie"
 
 # Vérifier si la base est déjà initialisée
 if php artisan db:table migrations > /dev/null 2>&1; then
-    echo "ℹ️  Base de données déjà initialisée - migrations ignorées"
+    echo "Base de données déjà initialisée - migrations ignorées"
 else
-    echo "🗄️  Installation de la base de données..."
+    echo "Installation de la base de données..."
     php artisan clientxcms:install-db --no-interaction
-    echo "✅ Base de données initialisée"
+    echo "Base de données initialisée"
 
     # Créer un utilisateur admin par défaut
-    echo "👤 Création de l'utilisateur admin..."
+    echo "Création de l'utilisateur admin..."
     php artisan clientxcms:create-admin \
         --email=admin@clientxcms.local \
         --password=password \
         --firstname=Admin \
         --lastname=DevContainer \
-        --no-interaction || echo "⚠️  Admin déjà créé ou erreur"
+        --no-interaction || echo "Admin déjà créé ou erreur"
 
-    echo "✅ Utilisateur admin créé:"
+    echo "Utilisateur admin créé:"
     echo "   Email: admin@clientxcms.local"
     echo "   Password: password"
 fi
 
 # Installer OAuth si nécessaire
 if ! grep -q "^OAUTH_CLIENT_ID=" .env || [ -z "$(grep '^OAUTH_CLIENT_ID=' .env | cut -d '=' -f2)" ]; then
-    echo "🔐 Configuration OAuth..."
+    echo "Configuration OAuth..."
     php artisan clientxcms:install-oauth --no-interaction
-    echo "✅ OAuth configuré"
+    echo "OAuth configuré"
 else
-    echo "ℹ️  OAuth déjà configuré"
+    echo "OAuth déjà configuré"
 fi
 
 # Importer les traductions
-echo "🌍 Import des traductions..."
+echo "Import des traductions..."
 php artisan translations:import --locale=fr_FR --no-interaction || echo "⚠️  Traductions déjà importées"
-echo "✅ Traductions importées"
+echo "Traductions importées"
 
 # Clear cache
-echo "🧹 Nettoyage du cache..."
+echo "Nettoyage du cache..."
 php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
 php artisan view:clear
-echo "✅ Cache nettoyé"
-
-# Permissions
-echo "🔒 Configuration des permissions..."
-chmod -R 775 storage bootstrap/cache
-echo "✅ Permissions configurées"
+echo "Cache nettoyé"
 
 echo ""
 echo "=================================================="
-echo "✅ Setup terminé avec succès!"
+echo "Setup terminé avec succès!"
 echo ""
-echo "🌐 Accès à l'application:"
+echo "Accès à l'application:"
 echo "   - Application: http://localhost"
 echo "   - phpMyAdmin: http://localhost:8080"
 echo "   - Mailpit (Emails): http://localhost:8025"
 echo ""
-echo "👤 Identifiants admin par défaut:"
+echo "Identifiants admin par défaut:"
 echo "   - Email: admin@clientxcms.local"
 echo "   - Password: password"
 echo ""
-echo "📧 Les emails sont capturés par Mailpit"
-echo "🚀 Tu peux maintenant utiliser ton devcontainer!"
+echo "Les emails sont capturés par Mailpit"
+echo "Tu peux maintenant utiliser ton devcontainer!"
 echo "=================================================="

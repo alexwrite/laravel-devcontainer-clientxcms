@@ -1,0 +1,11 @@
+# Ignorer les fichiers de backup
+*.backup
+*.bak
+
+# Ignorer les builds locaux temporaires
+base/.build-cache/
+
+# Ignorer les logs de build
+*.log
+
+alexandre*.keys

@@ -1,6 +1,8 @@
 services:
   cli:
-    build: cli
+    build:
+      context: cli
+      dockerfile: Dockerfile
     volumes:
       - ..:/workspaces/laravel
     depends_on:
@@ -49,7 +51,6 @@ services:
   redis:
     image: redis:7.2-alpine
 
-  # Ajout du service Ofelia pour la gestion des tâches
   scheduler:
     image: mcuadros/ofelia:latest
     command: daemon --docker
@@ -73,8 +74,8 @@ services:
   mailpit:
     image: axllent/mailpit:latest
     ports:
-      - "8025:8025"  # Interface web
-      - "1025:1025"  # SMTP server
+      - "8025:8025"
+      - "1025:1025"
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
