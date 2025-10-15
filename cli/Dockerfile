@@ -5,7 +5,8 @@ FROM php:8.3-cli-alpine
 RUN addgroup -g 1000 -S user && adduser -u 1000 -D user -G user
 
 # Install quality-of-life packages including openssh-client for SSH agent forwarding
-RUN apk add --no-cache bash curl git vim zsh shadow openssh-client
+# zsh-vcs provides vcs_info functions needed by Oh My Zsh themes like agnoster
+RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client
 
 # Install dependencies for PHP extensions
 RUN apk add --no-cache \
