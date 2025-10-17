@@ -4,9 +4,16 @@ FROM php:8.3-cli-alpine
 # Create a user group and account under id 1000
 RUN addgroup -g 1000 -S user && adduser -u 1000 -D user -G user
 
+# Configure sudo for user (will be done after sudo is installed)
+
 # Install quality-of-life packages including openssh-client for SSH agent forwarding
 # zsh-vcs provides vcs_info functions needed by Oh My Zsh themes like agnoster
-RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client
+# sudo is included for allowing user to execute privileged commands
+RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client sudo
+
+# Configure sudo: allow user to run commands without password
+RUN echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user && \
+    chmod 0440 /etc/sudoers.d/user
 
 # Install dependencies for PHP extensions
 RUN apk add --no-cache \
