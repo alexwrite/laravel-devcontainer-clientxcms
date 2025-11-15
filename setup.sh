@@ -68,8 +68,37 @@ fi
 
 # Build des assets
 echo "Build des assets frontend..."
-npm run build
-echo "Assets compilés"
+
+# Vérifier si un build précédent existe
+if [ -d "public/build" ] || [ -d "public/hot" ]; then
+    echo "   Suppression des anciens assets..."
+    rm -rf public/build public/hot
+    echo "   Anciens assets supprimés"
+fi
+
+# Vérifier que vite.config.js ou webpack.mix.js existe
+if [ -f "vite.config.js" ] || [ -f "vite.config.ts" ] || [ -f "webpack.mix.js" ]; then
+    echo "   Compilation des assets..."
+
+    # Build avec gestion d'erreur
+    if npm run build; then
+        echo "   Assets compilés avec succès"
+
+        # Vérifier que le build a généré des fichiers
+        if [ -d "public/build" ] && [ "$(ls -A public/build)" ]; then
+            echo "   Build vérifié: fichiers générés dans public/build"
+        else
+            echo "   WARNING: Build terminé mais aucun fichier dans public/build"
+        fi
+    else
+        echo "   ERROR: Échec de la compilation des assets"
+        echo "   L'application peut ne pas fonctionner correctement"
+        # On ne fait pas exit 1 pour permettre de continuer le setup
+    fi
+else
+    echo "   WARNING: Aucun fichier de configuration de build trouvé"
+    echo "   Skip du build des assets"
+fi
 
 # Générer la clé d'application si nécessaire
 if ! grep -q "^APP_KEY=base64:" .env; then
@@ -102,33 +131,33 @@ else
     php artisan clientxcms:install-db --no-interaction
     echo "Base de données initialisée"
 
-    # Créer un utilisateur admin par défaut
-    echo "Création de l'utilisateur admin..."
-    php artisan clientxcms:create-admin \
-        --email=admin@clientxcms.local \
-        --password=password \
-        --firstname=Admin \
-        --lastname=DevContainer \
-        --no-interaction || echo "Admin déjà créé ou erreur"
+    # Vérifier si un admin existe déjà
+    echo "Vérification des utilisateurs admin..."
+    admin_count=$(php artisan tinker --execute="echo App\Models\Admin::count();" 2>/dev/null || echo "0")
 
-    echo "Utilisateur admin créé:"
-    echo "   Email: admin@clientxcms.local"
-    echo "   Password: password"
-fi
+    if [ "$admin_count" -eq 0 ]; then
+        echo "   Aucun admin trouvé - création de l'utilisateur admin par défaut..."
+        php artisan clientxcms:install-admin \
+            --email=admin@clientxcms.local \
+            --password=password \
+            --firstname=Admin \
+            --lastname=DevContainer
 
-# Installer OAuth si nécessaire
-if ! grep -q "^OAUTH_CLIENT_ID=" .env || [ -z "$(grep '^OAUTH_CLIENT_ID=' .env | cut -d '=' -f2)" ]; then
-    echo "Configuration OAuth..."
-    php artisan clientxcms:install-oauth --no-interaction
-    echo "OAuth configuré"
-else
-    echo "OAuth déjà configuré"
+        echo "   Utilisateur admin créé:"
+        echo "      Email: admin@clientxcms.local"
+        echo "      Password: password"
+    else
+        echo "   Admin existant détecté ($admin_count utilisateur(s)) - création ignorée"
+    fi
 fi
 
 # Importer les traductions
 echo "Import des traductions..."
-php artisan translations:import --locale=fr_FR --no-interaction || echo "⚠️  Traductions déjà importées"
-echo "Traductions importées"
+if php artisan translations:import --locale=fr_FR 2>/dev/null; then
+    echo "   Traductions fr_FR importées avec succès"
+else
+    echo "   WARNING: Impossible d'importer les traductions (déjà présentes ou erreur réseau)"
+fi
 
 # Clear cache
 echo "Nettoyage du cache..."

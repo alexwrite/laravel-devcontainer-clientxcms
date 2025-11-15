@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ..:/workspaces/laravel
+      - ./cli/.claude:/home/user/.claude
     depends_on:
       mariadb:
         condition: service_healthy

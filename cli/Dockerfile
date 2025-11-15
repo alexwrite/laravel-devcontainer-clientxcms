@@ -9,7 +9,8 @@ RUN addgroup -g 1000 -S user && adduser -u 1000 -D user -G user
 # Install quality-of-life packages including openssh-client for SSH agent forwarding
 # zsh-vcs provides vcs_info functions needed by Oh My Zsh themes like agnoster
 # sudo is included for allowing user to execute privileged commands
-RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client sudo
+# jq and python3 are needed for git extension management scripts
+RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client sudo jq python3
 
 # Configure sudo: allow user to run commands without password
 RUN echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user && \
@@ -77,7 +78,7 @@ RUN sed -i 's|user:x:1000:1000:Linux User,,,:/home/user:/bin/sh|user:x:1000:1000
 COPY .zshrc /home/user/.zshrc
 COPY *.keys /home/user/.ssh/
 RUN chmod 600 /home/user/.ssh/* && \
-    chown -R user:user /home/user/.oh-my-zsh /home/user/.zshrc /home/user/.ssh
+    chown -R user:user /home/user/.oh-my-zsh /home/user/.zshrc /home/user/.ssh /home/user/.claude
 USER user
 
 # Prevent container from exiting early
