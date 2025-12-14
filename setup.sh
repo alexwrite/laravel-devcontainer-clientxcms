@@ -4,6 +4,14 @@ set -e
 echo "ClientXCMS DevContainer - Script d'initialisation"
 echo "=================================================="
 
+# Mise à jour de Claude Code
+echo "Mise à jour de Claude Code..."
+if npm install -g @anthropic-ai/claude-code > /dev/null 2>&1; then
+    echo "   Claude Code mis à jour avec succès"
+else
+    echo "   WARNING: Impossible de mettre à jour Claude Code"
+fi
+
 # Vérifier que nous sommes dans le bon répertoire
 cd /workspaces/laravel
 

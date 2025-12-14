@@ -53,14 +53,26 @@ RUN mkdir -p /usr/src/php/ext/redis && \
 # Install nodejs and npm for frontend
 RUN apk add --no-cache nodejs npm
 
-# Install Claude CLI globally
-RUN npm install -g @anthropic-ai/claude-code
-
 # Install oh-my-zsh for user
 USER user
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
     git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+# Install asdf version manager
+RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
+
+# Configure asdf in bashrc for interactive shells
+RUN echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
+
+# Configure npm to install global packages in user directory
+RUN mkdir -p ~/.npm-global && \
+    npm config set prefix ~/.npm-global && \
+    echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc && \
+    echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.zshrc
+
+# Install Claude Code CLI using system npm (Alpine's nodejs package)
+RUN npm install -g @anthropic-ai/claude-code
 
 # Create directories for persistent volumes
 RUN mkdir -p /home/user/.claude /home/user/.ssh
