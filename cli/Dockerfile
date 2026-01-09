@@ -10,7 +10,7 @@ RUN addgroup -g 1000 -S user && adduser -u 1000 -D user -G user
 # zsh-vcs provides vcs_info functions needed by Oh My Zsh themes like agnoster
 # sudo is included for allowing user to execute privileged commands
 # jq and python3 are needed for git extension management scripts
-RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client sudo jq python3
+RUN apk add --no-cache bash curl git vim zsh zsh-vcs shadow openssh-client sudo jq python3 keychain
 
 # Configure sudo: allow user to run commands without password
 RUN echo "user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user && \

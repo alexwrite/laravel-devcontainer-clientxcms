@@ -1,5 +1,5 @@
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH="$HOME/.npm-global/bin:$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -109,7 +109,8 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-eval $(keychain --quiet --eval ~/.ssh/alexandre-lyon1.keys)
+# Keychain SSH agent - create dir with secure permissions before keychain runs
+mkdir -p ~/.keychain && chmod 700 ~/.keychain
 eval $(keychain --quiet --eval ~/.ssh/alexandre-pro.keys)
 
 alias cc="claude --dangerously-skip-permissions"
