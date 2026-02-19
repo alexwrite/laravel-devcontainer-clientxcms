@@ -18,3 +18,9 @@ fi
 if ! grep -q "^APP_KEY=base64:" .env; then
     php artisan key:generate
 fi
+
+# Run migrations if the database has no tables
+TABLE_COUNT=$(mysql -h mariadb -u clientxcms -pclientxcms clientxcms -sNe "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'clientxcms';" 2>/dev/null || echo "0")
+if [ "$TABLE_COUNT" -eq 0 ]; then
+    php artisan migrate --force --seed
+fi
