@@ -6,6 +6,9 @@ services:
     volumes:
       - ..:/workspaces/laravel
       - ./cli/.claude:/home/user/.claude
+      - ../../Modules:/workspaces/Modules
+      - ../../Addons:/workspaces/Addons
+      - ../../Themes:/workspaces/Themes
     depends_on:
       mariadb:
         condition: service_healthy
@@ -18,12 +21,18 @@ services:
     build: fpm
     volumes:
       - ..:/workspaces/laravel
+      - ../../Modules:/workspaces/Modules
+      - ../../Addons:/workspaces/Addons
+      - ../../Themes:/workspaces/Themes
     user: 1000:1000
 
   nginx:
     build: nginx
     volumes:
       - ..:/workspaces/laravel
+      - ../../Modules:/workspaces/Modules
+      - ../../Addons:/workspaces/Addons
+      - ../../Themes:/workspaces/Themes
     ports:
       - 80:80
     depends_on:
@@ -60,6 +69,9 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ..:/workspaces/laravel
+      - ../../Modules:/workspaces/Modules
+      - ../../Addons:/workspaces/Addons
+      - ../../Themes:/workspaces/Themes
     depends_on:
       mariadb:
         condition: service_healthy
