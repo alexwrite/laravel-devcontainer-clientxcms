@@ -9,13 +9,13 @@ services:
       - ../../Modules:/workspaces/Modules
       - ../../Addons:/workspaces/Addons
       - ../../Themes:/workspaces/Themes
-    depends_on:
-      mariadb:
-        condition: service_healthy
     labels:
       ofelia.enabled: "true"
       ofelia.job-exec.laravel-scheduler.schedule: "@every 1m"
       ofelia.job-exec.laravel-scheduler.command: "php /workspaces/laravel/artisan schedule:run"
+    networks:
+      - shared-infra
+      - default
 
   fpm:
     build: fpm
@@ -25,6 +25,9 @@ services:
       - ../../Addons:/workspaces/Addons
       - ../../Themes:/workspaces/Themes
     user: 1000:1000
+    networks:
+      - shared-infra
+      - default
 
   nginx:
     build: nginx
@@ -33,35 +36,17 @@ services:
       - ../../Modules:/workspaces/Modules
       - ../../Addons:/workspaces/Addons
       - ../../Themes:/workspaces/Themes
-    ports:
-      - 80:80
     depends_on:
       - fpm
-
-  mariadb:
-    image: mariadb:11.2
-    ports:
-      - "3306:3306"
-    environment:
-      MARIADB_DATABASE: clientxcms
-      MARIADB_USER: clientxcms
-      MARIADB_PASSWORD: clientxcms
-      MARIADB_ROOT_PASSWORD: clientxcms
-    command: --default-authentication-plugin=mysql_native_password
-    volumes:
-      - mariadb-data:/var/lib/mysql
-      - ./mariadb/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
-  redis:
-    image: redis:7.2-alpine
-    ports:
-      - "6379:6379"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.clientxcms.rule=Host(`clientxcms.test`)"
+      - "traefik.http.routers.clientxcms.entrypoints=https"
+      - "traefik.http.routers.clientxcms.tls=true"
+      - "traefik.http.services.clientxcms.loadbalancer.server.port=80"
+    networks:
+      - shared-infra
+      - default
 
   queue:
     build:
@@ -72,13 +57,11 @@ services:
       - ../../Modules:/workspaces/Modules
       - ../../Addons:/workspaces/Addons
       - ../../Themes:/workspaces/Themes
-    depends_on:
-      mariadb:
-        condition: service_healthy
-      redis:
-        condition: service_started
     command: php /workspaces/laravel/artisan queue:work redis --queue=high,default,low --sleep=3 --tries=3 --max-time=3600
     restart: unless-stopped
+    networks:
+      - shared-infra
+      - default
 
   scheduler:
     image: mcuadros/ofelia:latest
@@ -87,18 +70,6 @@ services:
       - cli
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: mariadb
-      PMA_USER: root
-      PMA_PASSWORD: clientxcms
-      UPLOAD_LIMIT: 512M
-    depends_on:
-      - mariadb
 
   mailpit:
     image: axllent/mailpit:latest
@@ -109,5 +80,6 @@ services:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
-volumes:
-  mariadb-data:
+networks:
+  shared-infra:
+    external: true
