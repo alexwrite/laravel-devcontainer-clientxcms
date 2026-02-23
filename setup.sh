@@ -3,6 +3,12 @@ set -e
 
 cd /workspaces/laravel
 
+# Create Laravel storage directories (cache, sessions, views, logs)
+mkdir -p storage/framework/{cache/data,sessions,views,testing}
+mkdir -p storage/logs
+mkdir -p bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
 if [ ! -f .env ]; then
     cp .env.example .env
 fi
