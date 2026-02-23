@@ -3,10 +3,11 @@ set -e
 
 cd /workspaces/laravel
 
-# Create Laravel storage directories (cache, sessions, views, logs)
+# Create Laravel storage directories and fix ownership (volumes may be owned by root)
 mkdir -p storage/framework/{cache/data,sessions,views,testing}
 mkdir -p storage/logs
 mkdir -p bootstrap/cache
+sudo chown -R user:user storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
 if [ ! -f .env ]; then
