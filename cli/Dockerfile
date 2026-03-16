@@ -87,10 +87,7 @@ RUN echo "Host *\n\
 # Configure zsh as default shell for user
 USER root
 RUN sed -i 's|user:x:1000:1000:Linux User,,,:/home/user:/bin/sh|user:x:1000:1000:Linux User,,,:/home/user:/bin/zsh|' /etc/passwd
-COPY .zshrc /home/user/.zshrc
-COPY *.keys /home/user/.ssh/
-RUN chmod 600 /home/user/.ssh/* && \
-    chown -R user:user /home/user/.oh-my-zsh /home/user/.zshrc /home/user/.ssh /home/user/.claude
+RUN chown -R user:user /home/user/.oh-my-zsh /home/user/.ssh /home/user/.claude
 USER user
 
 # Prevent container from exiting early

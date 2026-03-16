@@ -1,86 +1,63 @@
 name: clientxcms
-
 services:
   cli:
-    build:
-      context: cli
-      dockerfile: Dockerfile
+    image: clientxcms/cli:dev
     volumes:
-      - ..:/workspaces/laravel
-      - ./cli/.claude:/home/user/.claude
-      - ../../Modules:/workspaces/Modules
-      - ../../Addons:/workspaces/Addons
-      - ../../Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
+      - /home/alex/DATA/ClientXCMS/ClientXCMS/.devcontainer/cli/.claude:/home/user/.claude
+      - /home/alex/DATA/Modules:/workspaces/Modules
+      - /home/alex/DATA/Addons:/workspaces/Addons
+      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/.local/share/mkcert/rootCA.pem:/usr/local/share/ca-certificates/mkcert-ca.crt:ro
     labels:
       ofelia.enabled: "true"
       ofelia.job-exec.laravel-scheduler.schedule: "@every 1m"
       ofelia.job-exec.laravel-scheduler.command: "php /workspaces/laravel/artisan schedule:run"
     networks:
       - shared-infra
-      - default
 
   fpm:
-    build: fpm
+    image: clientxcms/fpm:dev
     volumes:
-      - ..:/workspaces/laravel
-      - ../../Modules:/workspaces/Modules
-      - ../../Addons:/workspaces/Addons
-      - ../../Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
+      - /home/alex/DATA/Modules:/workspaces/Modules
+      - /home/alex/DATA/Addons:/workspaces/Addons
+      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/.local/share/mkcert/rootCA.pem:/usr/local/share/ca-certificates/mkcert-ca.crt:ro
     user: 1000:1000
     networks:
       - shared-infra
-      - default
 
   nginx:
-    build: nginx
+    image: clientxcms/nginx:dev
     volumes:
-      - ..:/workspaces/laravel
-      - ../../Modules:/workspaces/Modules
-      - ../../Addons:/workspaces/Addons
-      - ../../Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
+      - /home/alex/DATA/Modules:/workspaces/Modules
+      - /home/alex/DATA/Addons:/workspaces/Addons
+      - /home/alex/DATA/Themes:/workspaces/Themes
     depends_on:
       - fpm
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.clientxcms.rule=Host(`clientxcms.test`)"
+      - "traefik.http.routers.clientxcms.rule=Host(`clientxcms.dev.localhost`)"
       - "traefik.http.routers.clientxcms.entrypoints=https"
       - "traefik.http.routers.clientxcms.tls=true"
       - "traefik.http.services.clientxcms.loadbalancer.server.port=80"
     networks:
       - shared-infra
-      - default
 
   queue:
-    build:
-      context: cli
-      dockerfile: Dockerfile
+    image: clientxcms/cli:dev
     volumes:
-      - ..:/workspaces/laravel
-      - ../../Modules:/workspaces/Modules
-      - ../../Addons:/workspaces/Addons
-      - ../../Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
+      - /home/alex/DATA/Modules:/workspaces/Modules
+      - /home/alex/DATA/Addons:/workspaces/Addons
+      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/.local/share/mkcert/rootCA.pem:/usr/local/share/ca-certificates/mkcert-ca.crt:ro
     command: php /workspaces/laravel/artisan queue:work redis --queue=high,default,low --sleep=3 --tries=3 --max-time=3600
     restart: unless-stopped
     networks:
       - shared-infra
-      - default
-
-  scheduler:
-    image: mcuadros/ofelia:latest
-    command: daemon --docker
-    depends_on:
-      - cli
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
-  mailpit:
-    image: axllent/mailpit:latest
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
 networks:
   shared-infra:
