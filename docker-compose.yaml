@@ -1,13 +1,13 @@
 name: clientxcms
 services:
-  cli:
+  clientxcms-cli:
     image: clientxcms/cli:dev
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
       - /home/alex/DATA/ClientXCMS/ClientXCMS/.devcontainer/cli/.claude:/home/user/.claude
-      - /home/alex/DATA/Modules:/workspaces/Modules
-      - /home/alex/DATA/Addons:/workspaces/Addons
-      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/Modules:/workspaces/Modules
+      - /home/alex/DATA/ClientXCMS/Addons:/workspaces/Addons
+      - /home/alex/DATA/ClientXCMS/Themes:/workspaces/Themes
       - /home/alex/.local/share/mkcert/rootCA.pem:/usr/local/share/ca-certificates/mkcert-ca.crt:ro
     labels:
       ofelia.enabled: "true"
@@ -16,27 +16,28 @@ services:
     networks:
       - shared-infra
 
-  fpm:
+  clientxcms-fpm:
     image: clientxcms/fpm:dev
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
-      - /home/alex/DATA/Modules:/workspaces/Modules
-      - /home/alex/DATA/Addons:/workspaces/Addons
-      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/Modules:/workspaces/Modules
+      - /home/alex/DATA/ClientXCMS/Addons:/workspaces/Addons
+      - /home/alex/DATA/ClientXCMS/Themes:/workspaces/Themes
       - /home/alex/.local/share/mkcert/rootCA.pem:/usr/local/share/ca-certificates/mkcert-ca.crt:ro
     user: 1000:1000
     networks:
       - shared-infra
 
-  nginx:
+  clientxcms-nginx:
     image: clientxcms/nginx:dev
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
-      - /home/alex/DATA/Modules:/workspaces/Modules
-      - /home/alex/DATA/Addons:/workspaces/Addons
-      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/Modules:/workspaces/Modules
+      - /home/alex/DATA/ClientXCMS/Addons:/workspaces/Addons
+      - /home/alex/DATA/ClientXCMS/Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/ClientXCMS/.devcontainer/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - fpm
+      - clientxcms-fpm
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.clientxcms.rule=Host(`clientxcms.dev.localhost`)"
@@ -46,13 +47,13 @@ services:
     networks:
       - shared-infra
 
-  queue:
+  clientxcms-queue:
     image: clientxcms/cli:dev
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
-      - /home/alex/DATA/Modules:/workspaces/Modules
-      - /home/alex/DATA/Addons:/workspaces/Addons
-      - /home/alex/DATA/Themes:/workspaces/Themes
+      - /home/alex/DATA/ClientXCMS/Modules:/workspaces/Modules
+      - /home/alex/DATA/ClientXCMS/Addons:/workspaces/Addons
+      - /home/alex/DATA/ClientXCMS/Themes:/workspaces/Themes
       - /home/alex/.local/share/mkcert/rootCA.pem:/usr/local/share/ca-certificates/mkcert-ca.crt:ro
     command: php /workspaces/laravel/artisan queue:work redis --queue=high,default,low --sleep=3 --tries=3 --max-time=3600
     restart: unless-stopped
