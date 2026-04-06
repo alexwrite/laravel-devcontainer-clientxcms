@@ -2,6 +2,8 @@ name: clientxcms
 services:
   clientxcms-cli:
     image: clientxcms/cli:dev
+    extra_hosts:
+      - "pterodactyl.dev.localhost:host-gateway"
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
       - /home/alex/DATA/ClientXCMS/ClientXCMS/.devcontainer/cli/.claude:/home/user/.claude
@@ -18,6 +20,8 @@ services:
 
   clientxcms-fpm:
     image: clientxcms/fpm:dev
+    extra_hosts:
+      - "pterodactyl.dev.localhost:host-gateway"
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
       - /home/alex/DATA/ClientXCMS/Modules:/workspaces/Modules
@@ -49,6 +53,8 @@ services:
 
   clientxcms-queue:
     image: clientxcms/cli:dev
+    extra_hosts:
+      - "pterodactyl.dev.localhost:host-gateway"
     volumes:
       - /home/alex/DATA/ClientXCMS/ClientXCMS:/workspaces/laravel
       - /home/alex/DATA/ClientXCMS/Modules:/workspaces/Modules
